@@ -1,5 +1,5 @@
 
-name: Update index.html in GH Pages
+name: Update index.html in GH Pages and generate global sitemap
 
 on:
   workflow_dispatch:
@@ -29,3 +29,30 @@ jobs:
       with:
         default_author: github_actions
         message: "update index.html"
+
+  run-global-sitemap-script:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        ref: main
+
+    - name: Install Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: Install dependencies
+      run: pip install -r ./requirements/requirements_doc.txt
+
+    - name: Run script
+      working-directory: ./.github/sripts
+      run: python catsitemap.py
+
+    - name: Upload sitemap index file
+      uses: actions/upload-artifact@v4
+      with:
+        name: global-sitemap-file
+        path: scripts/globalsitemap.xml
